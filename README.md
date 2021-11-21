@@ -30,7 +30,6 @@ A simple maze game using Matter.js
 
 ### Built With
 * HTML
-* CSS
 * Javascript
 * Matter.js
 
