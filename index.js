@@ -1,6 +1,7 @@
 const { Engine, Render, Runner, World, Bodies } = Matter;
 const width = 600;
 const height = 600;
+const cells = 3;
 const engine = Engine.create();
 const { world } = engine;
 const render = Render.create({
@@ -36,5 +37,7 @@ World.add(world, walls);
 
 // why not -> Array(3).fill([false,false,false,]) because those will be pointing to the Same Array as references
 
-const grid = Array(3).fill(null).map(()=> Array(3).fill(false));
+const grid = Array(cells).fill(null).map(()=> Array(cells).fill(false));
 
+const verticals = Array(cells).fill(null).map(()=>Array(cells - 1).fill(false));
+const horizontals = Array(cells - 1).fill(null).map(()=> Array(cells).fill(false));
