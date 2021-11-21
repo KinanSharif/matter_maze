@@ -9,8 +9,8 @@ const render = Render.create({
   engine: engine,
   options: {
     width,
-    height
-  }
+    height,
+  },
 });
 Render.run(render);
 Runner.run(Runner.create(), engine);
@@ -18,26 +18,103 @@ Runner.run(Runner.create(), engine);
 // Walls
 
 const walls = [
-  Bodies.rectangle(width/2, 0, width, 40, {
-  isStatic: true
-}),
-Bodies.rectangle(width/2, height, width, 40, {
-  isStatic: true
-}),
-Bodies.rectangle(0, height/2, 40, height, {
-  isStatic: true
-}),
-Bodies.rectangle(width, height/2, 40, height, {
-  isStatic: true
-})
+  Bodies.rectangle(width / 2, 0, width, 40, {
+    isStatic: true,
+  }),
+  Bodies.rectangle(width / 2, height, width, 40, {
+    isStatic: true,
+  }),
+  Bodies.rectangle(0, height / 2, 40, height, {
+    isStatic: true,
+  }),
+  Bodies.rectangle(width, height / 2, 40, height, {
+    isStatic: true,
+  }),
 ];
 World.add(world, walls);
 
 // Maze generation
 
+const shuffle = (arr) => {
+  let counter = arr.length;
+
+  while (counter > 0) {
+    const index = Math.floor(Math.random() * counter);
+
+    counter--;
+
+    const temp = arr[counter];
+    arr[counter] = arr[index];
+    arr[index] = temp;
+  }
+
+  return arr;
+};
+
 // why not -> Array(3).fill([false,false,false,]) because those will be pointing to the Same Array as references
 
-const grid = Array(cells).fill(null).map(()=> Array(cells).fill(false));
+const grid = Array(cells)
+  .fill(null)
+  .map(() => Array(cells).fill(false));
 
-const verticals = Array(cells).fill(null).map(()=>Array(cells - 1).fill(false));
-const horizontals = Array(cells - 1).fill(null).map(()=> Array(cells).fill(false));
+const verticals = Array(cells)
+  .fill(null)
+  .map(() => Array(cells - 1).fill(false));
+const horizontals = Array(cells - 1)
+  .fill(null)
+  .map(() => Array(cells).fill(false));
+
+const startRow = Math.floor(Math.random() * cells);
+const startColumn = Math.floor(Math.random() * cells);
+
+const stepThroughCell = (row, column) => {
+  // If I have visited the cell at [row,col], then return
+
+  if (grid[row][column] === true) return;
+
+  // Mark this cell as being visited
+  grid[row][column] = true;
+
+  // Assemble randomly-ordered list of neighbors
+  const neighbors = [
+    [row - 1, column, "up"],
+    [row, column + 1, "right"],
+    [row + 1, column, "down"],
+    [row, column - 1, "left"],
+  ];
+
+  // For each neighbor...
+  for (let neighbor of neighbors) {
+    const [nextRow, nextColumn, direction] = neighbor;
+
+    // See if that neighbor is out of bounds
+    if (
+      nextRow < 0 ||
+      nextRow >= cells ||
+      nextColumn < 0 ||
+      nextColumn >= cells
+    ) {
+      continue;
+    }
+
+    // If we have visited that neighbor, continue to next neighbor
+    if (grid[nextRow][nextColumn]) {
+      continue;
+    }
+    // remove a wall from either horizontals or verticals
+    if (direction === "left") {
+      verticals[row][column - 1] = true;
+    } else if (direction === "right") {
+      verticals[row][column] = true;
+    } else if (direction === "up") {
+      horizontals[row - 1][column] = true;
+    } else if (direction === "down") {
+      horizontals[row][column] = true;
+    }
+  }
+
+  // visit that next cell
+  stepThroughCell(nextRow, nextColumn);
+};
+
+stepThroughCell(nextRow, nextColumn);
